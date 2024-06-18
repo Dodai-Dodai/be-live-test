@@ -154,6 +154,10 @@ func main() {
 	mux.HandleFunc("/get_person_image", func(w http.ResponseWriter, r *http.Request) {
 		getPersonImageHandler(w, r, db)
 	})
+	//index.html
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.html")
+	})
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: mux,
