@@ -69,7 +69,7 @@ func addPersonHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	fmt.Fprintf(w, "Person added with ID: %d\n", id)
 }
 
-func getPersonHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+func getPersonNameHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	if r.Method != "GET" {
 		http.Error(w, "Unsupported method", http.StatusMethodNotAllowed)
 		return
@@ -87,17 +87,41 @@ func getPersonHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	name, imageData, err := RetrievePersonAndImage(db, id)
+	name, _, err := RetrievePersonAndImage(db, id)
 	if err != nil {
 		http.Error(w, "Person not found", http.StatusNotFound)
 		return
 	}
 
-	log.Print(name)
+	fmt.Fprintf(w, "Name: %s\n", name)
+}
 
-	// ユーザーの名前と画像データを返す
-	w.Header().Set("Content-Type", "image/jpeg") // 適切なMIMEタイプを設定
-	w.Write(imageData)                           // 画像データをバイナリ形式で直接返す
+func getPersonImageHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != "GET" {
+		http.Error(w, "Unsupported method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "ID is required", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	_, imageData, err := RetrievePersonAndImage(db, id)
+	if err != nil {
+		http.Error(w, "Person not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/jpeg")
+	w.Write(imageData)
 }
 
 func main() {
@@ -124,8 +148,11 @@ func main() {
 	mux.HandleFunc("/add_person", func(w http.ResponseWriter, r *http.Request) {
 		addPersonHandler(w, r, db)
 	})
-	mux.HandleFunc("/get_person", func(w http.ResponseWriter, r *http.Request) {
-		getPersonHandler(w, r, db)
+	mux.HandleFunc("/get_person_name", func(w http.ResponseWriter, r *http.Request) {
+		getPersonNameHandler(w, r, db)
+	})
+	mux.HandleFunc("/get_person_image", func(w http.ResponseWriter, r *http.Request) {
+		getPersonImageHandler(w, r, db)
 	})
 	server := http.Server{
 		Addr:    ":8080",
