@@ -2,37 +2,30 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 
-	// SQLiteのドライバ
-	// database/sqlを経由して利用するため、ブランクインポートとする
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func InsertPersonAndImage(db *sql.DB, name string, imagePath string) (int64, error) {
-	imageData, err := ioutil.ReadFile(imagePath)
-	if err != nil {
-		return 0, err
-	}
-
+func InsertPersonAndImage(db *sql.DB, name string, imageData []byte) (int64, error) {
 	sqlIns := `INSERT INTO persons(name, imagedata) VALUES (?, ?);`
 	result, err := db.Exec(sqlIns, name, imageData)
 	if err != nil {
 		return 0, err
 	}
-
 	id, err := result.LastInsertId()
 	if err != nil {
 		return 0, err
 	}
-
 	return id, nil
 }
 
-func RetrievePersonAndImage(db *sql.DB, id int, outputPath string) (string, error) {
+func RetrievePersonAndImage(db *sql.DB, id int) (string, []byte, error) {
 	sqlQuery := `SELECT name, imagedata FROM persons WHERE id = ?;`
 	row := db.QueryRow(sqlQuery, id)
 
@@ -40,59 +33,103 @@ func RetrievePersonAndImage(db *sql.DB, id int, outputPath string) (string, erro
 	var imageData []byte
 	err := row.Scan(&name, &imageData)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
-
-	err = ioutil.WriteFile(outputPath, imageData, 0644)
-	if err != nil {
-		return "", err
-	}
-
-	return name, nil
-
+	return name, imageData, nil
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	b, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		fmt.Fprintln(w, err)
+func addPersonHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != "POST" {
+		http.Error(w, "Unsupported method", http.StatusMethodNotAllowed)
 		return
 	}
-	fmt.Fprintln(w, string(b))
-	log.Print(w, string(b))
+
+	var req struct {
+		Name     string `json:"name"`
+		ImageURL string `json:"image_url"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	imageData, err := ioutil.ReadFile(req.ImageURL)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	id, err := InsertPersonAndImage(db, req.Name, imageData)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "Person added with ID: %d\n", id)
+}
+
+func getPersonHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method != "GET" {
+		http.Error(w, "Unsupported method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "ID is required", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	name, imageData, err := RetrievePersonAndImage(db, id)
+	if err != nil {
+		http.Error(w, "Person not found", http.StatusNotFound)
+		return
+	}
+
+	log.Print(name)
+
+	// ユーザーの名前と画像データを返す
+	w.Header().Set("Content-Type", "image/jpeg") // 適切なMIMEタイプを設定
+	w.Write(imageData)                           // 画像データをバイナリ形式で直接返す
 }
 
 func main() {
-	// ここでDBに接続されるとは限らない
 	db, err := sql.Open("sqlite3", "./be-live")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	// DBの接続確認
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)
 	}
 
-	//DDL文実行
-	ddl3 := `
+	ddl := `
 	CREATE TABLE IF NOT EXISTS persons (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name TEXT NOT NULL,
 	imagedata BLOB);`
-
-	if _, err := db.Exec(ddl3); err != nil {
+	if _, err := db.Exec(ddl); err != nil {
 		log.Fatal(err)
 	}
 
-	//ここからhttpサーバ
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handler)
+	mux.HandleFunc("/add_person", func(w http.ResponseWriter, r *http.Request) {
+		addPersonHandler(w, r, db)
+	})
+	mux.HandleFunc("/get_person", func(w http.ResponseWriter, r *http.Request) {
+		getPersonHandler(w, r, db)
+	})
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: mux,
 	}
-	server.ListenAndServe()
-
+	log.Fatal(server.ListenAndServe())
 }
