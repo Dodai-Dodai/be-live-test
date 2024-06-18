@@ -27,5 +27,4 @@ curl -X GET 'http://localhost:8080/get_person_name?id=1'
 ## 参照(画像)
 ```sh
 curl -X GET 'http://localhost:8080/get_person_image?id=1' -o person_image.jpg
-
 ```
