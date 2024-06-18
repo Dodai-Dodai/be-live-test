@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,8 +26,31 @@
                 })
                 .catch(error => console.error('Error fetching image:', error));
         }
+
+        function addPerson() {
+            var name = document.getElementById("newPersonName").value;
+            var imageUrl = document.getElementById("newPersonImageUrl").value;
+            var personData = {
+                name: name,
+                image_url: imageUrl
+            };
+
+            fetch('/add_person', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(personData)
+            })
+                .then(response => response.text())
+                .then(data => {
+                    alert('Person added successfully: ' + data);
+                })
+                .catch(error => console.error('Error adding person:', error));
+        }
     </script>
 </head>
+
 <body>
     <h1>Fetch Person Information</h1>
     <input type="text" id="personId" placeholder="Enter Person ID">
@@ -34,5 +58,11 @@
     <button onclick="fetchImage()">Fetch Image</button>
     <p id="personName"></p>
     <img id="personImage" alt="Person Image" style="max-width: 300px;">
+
+    <h2>Add New Person</h2>
+    <input type="text" id="newPersonName" placeholder="Enter Person Name">
+    <input type="text" id="newPersonImageUrl" placeholder="Enter Image URL">
+    <button onclick="addPerson()">Add Person</button>
 </body>
+
 </html>
