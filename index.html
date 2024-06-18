@@ -8,7 +8,7 @@
     <script>
         function fetchName() {
             var id = document.getElementById("personId").value;
-            fetch('/get_person_name?id=' + id)
+            fetch('http://localhost:8080/get_person_name?id=' + id)
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById("personName").innerText = 'Name: ' + data;
@@ -18,7 +18,7 @@
 
         function fetchImage() {
             var id = document.getElementById("personId").value;
-            fetch('/get_person_image?id=' + id)
+            fetch('http://localhost:8080/get_person_image?id=' + id)
                 .then(response => response.blob())
                 .then(imageBlob => {
                     var imageUrl = URL.createObjectURL(imageBlob);
@@ -35,7 +35,7 @@
                 image_url: imageUrl
             };
 
-            fetch('/add_person', {
+            fetch('http://localhost:8080/add_person', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

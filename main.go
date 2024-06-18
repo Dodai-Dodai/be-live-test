@@ -12,6 +12,12 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")                   // 任意のオリジンからのアクセスを許可
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS") // 許可するHTTPメソッド
+	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")       // 許可するヘッダー
+}
+
 func InsertPersonAndImage(db *sql.DB, name string, imageData []byte) (int64, error) {
 	sqlIns := `INSERT INTO persons(name, imagedata) VALUES (?, ?);`
 	result, err := db.Exec(sqlIns, name, imageData)
@@ -70,10 +76,18 @@ func addPersonHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func getPersonNameHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method == "OPTIONS" {
+		enableCors(&w)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	if r.Method != "GET" {
 		http.Error(w, "Unsupported method", http.StatusMethodNotAllowed)
 		return
 	}
+
+	enableCors(&w)
 
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
@@ -97,10 +111,17 @@ func getPersonNameHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func getPersonImageHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	if r.Method == "OPTIONS" {
+		enableCors(&w)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 	if r.Method != "GET" {
 		http.Error(w, "Unsupported method", http.StatusMethodNotAllowed)
 		return
 	}
+
+	enableCors(&w)
 
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
