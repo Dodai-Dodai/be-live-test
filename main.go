@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -13,9 +12,9 @@ import (
 )
 
 func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")                   // 任意のオリジンからのアクセスを許可
-	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS") // 許可するHTTPメソッド
-	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")       // 許可するヘッダー
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")
 }
 
 func InsertPersonAndImage(db *sql.DB, name string, imageData []byte) (int64, error) {
@@ -50,23 +49,21 @@ func addPersonHandler(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	var req struct {
-		Name     string `json:"name"`
-		ImageURL string `json:"image_url"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	imageData, err := ioutil.ReadFile(req.ImageURL)
+	name := r.FormValue("name")
+	file, _, err := r.FormFile("image")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	defer file.Close()
 
-	id, err := InsertPersonAndImage(db, req.Name, imageData)
+	imageData, err := ioutil.ReadAll(file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	id, err := InsertPersonAndImage(db, name, imageData)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
