@@ -29,18 +29,15 @@
 
         function addPerson() {
             var name = document.getElementById("newPersonName").value;
-            var imageUrl = document.getElementById("newPersonImageUrl").value;
-            var personData = {
-                name: name,
-                image_url: imageUrl
-            };
+            var imageFile = document.getElementById("newPersonImage").files[0];
+
+            var formData = new FormData();
+            formData.append("name", name);
+            formData.append("image", imageFile);
 
             fetch('http://localhost:8080/add_person', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(personData)
+                body: formData
             })
                 .then(response => response.text())
                 .then(data => {
@@ -61,7 +58,7 @@
 
     <h2>Add New Person</h2>
     <input type="text" id="newPersonName" placeholder="Enter Person Name">
-    <input type="text" id="newPersonImageUrl" placeholder="Enter Image URL">
+    <input type="file" id="newPersonImage">
     <button onclick="addPerson()">Add Person</button>
 </body>
 
