@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Client3</title>
+</head>
+<body>
+	<h1>Client3</h1>
+	<div>
+		<video id="video" muted="muted"></video>
+	</div>
+	<script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+	<script>
+		const peer = new Peer('client3', {
+			host: 'localhost',
+			port: 9000,
+			path: '/'
+		});
+
+		const video = document.getElementById("video")
+
+		peer.on('call', function (call) {
+			call.answer();
+			call.on('stream', stream => {
+				video.srcObject = stream;
+				video.play();
+			});
+		});	
+	</script>
+</body>
+</html>
