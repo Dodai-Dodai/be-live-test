@@ -24,7 +24,7 @@
         const video = document.getElementById("video")
         navigator.mediaDevices.getUserMedia({
             video: true,
-            audio: false,
+            audio: true,
         }).then(stream => {
             for(let i = 0; i < peerIds.length; i++) {
                 peer.call(peerIds[i], stream)
