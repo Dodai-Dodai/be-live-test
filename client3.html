@@ -21,12 +21,18 @@
 
         const localVideo = document.getElementById("localVideo");
         const remoteVideo = document.getElementById("remoteVideo");
-        
+
         navigator.mediaDevices.getUserMedia({
             video: true,
             audio: false,
         }).then(stream => {
             localVideo.srcObject = stream;
+
+            // client0に接続要求を送信
+            const conn = peer.connect('client0');
+            conn.on('open', () => {
+                conn.send(peer.id);
+            });
 
             peer.on('call', call => {
                 call.answer(stream);
@@ -34,6 +40,7 @@
                     remoteVideo.srcObject = remoteStream;
                 });
             });
+
         }).catch(e => {
             console.log(e);
         });
