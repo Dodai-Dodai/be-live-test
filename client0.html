@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client0</title>
+</head>
+
+<body>
+    <h1>Client0</h1>
+    <div>
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo1" autoplay></video>
+        <video id="remoteVideo2" autoplay></video>
+        <video id="remoteVideo3" autoplay></video>
+        <video id="remoteVideo4" autoplay></video>
+    </div>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script>
+        const peer = new Peer('client0', {
+            host: 'localhost',
+            port: 9000,
+            path: '/'
+        });
+
+        const localVideo = document.getElementById("localVideo");
+        const remoteVideo1 = document.getElementById("remoteVideo1");
+        const remoteVideo2 = document.getElementById("remoteVideo2");
+        const remoteVideo3 = document.getElementById("remoteVideo3");
+        const remoteVideo4 = document.getElementById("remoteVideo4");
+
+        navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false,
+        }).then(stream => {
+            localVideo.srcObject = stream;
+
+            // client1 から client1 へ接続
+            const call1 = peer.call('client1', stream);
+            call1.on('stream', remoteStream => {
+                remoteVideo1.srcObject = remoteStream;
+            });
+
+            // client1 から client2 へ接続
+            const call2 = peer.call('client2', stream);
+            call2.on('stream', remoteStream => {
+                remoteVideo2.srcObject = remoteStream;
+            });
+
+            // client1 から client3 へ接続
+            const call3 = peer.call('client3', stream);
+            call3.on('stream', remoteStream => {
+                remoteVideo3.srcObject = remoteStream;
+            });
+
+            // client1 から client4 へ接続
+            const call4 = peer.call('client4', stream);
+            call4.on('stream', remoteStream => {
+                remoteVideo4.srcObject = remoteStream;
+            });
+        }).catch(e => {
+            console.log(e);
+        });
+    </script>
+</body>
+
+</html>
