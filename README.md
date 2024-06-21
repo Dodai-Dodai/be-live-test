@@ -1,30 +1,30 @@
-# sqlite3インストールして
+# peerjsサーバのインストール
 
-https://qiita.com/inakuuun/items/ae5fa17341db76247f88
+## localhostで動かす場合のみ以下の手順を踏む
 
-https://qiita.com/sato_ken09/items/bd0c5d522eb1e20fe61c
+参考
+https://reffect.co.jp/html/webrtcpeerjs
 
-# go 動かすよ
 
+npm init -yコマンドを実行してpackage.jsonファイルを作成する
 ```sh
-go run main.go
+npm init -y
 ```
 
-# curlする
-
-## 追加
-
+peerJSの サーバのライブラリを インストールします。
 ```sh
-curl -X POST -H "Content-Type: application/json" -d '{"name":"John Doe", "image_url":"画像の保存場所"}' http://localhost:8080/add_person
+npm install peer
 ```
 
-## 参照(名前)
-```id=```のところに値入れる
+npxコマンドを利用した peerJS サーバを起動します。ここではポートの9000番で起動
 ```sh
-curl -X GET 'http://localhost:8080/get_person_name?id=1'
+npx peerjs --port 9000
 ```
 
-## 参照(画像)
-```sh
-curl -X GET 'http://localhost:8080/get_person_image?id=1' -o person_image.jpg
-```
+
+## ホスト側
+cast.htmlを開いて待機
+
+## ゲスト側
+viewer.htmlを開いて、フォームに自身のIDを入力
+入力したIDがpeerIDとして使用される。
