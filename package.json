@@ -2,6 +2,9 @@
   "name": "be-live-server",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
