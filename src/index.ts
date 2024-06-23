@@ -11,6 +11,10 @@ interface User {
 // userの配列を定義
 const users: User[] = [];
 
+// usersを引数としてランダムに一つのuserを返す関数
+const randomUser = (users: User[]): User => {
+    return users[Math.floor(Math.random() * users.length)];
+};
 
 // userIDを取得してある程度人数が増えたら
 api.post('/adduser', async (c) => {
