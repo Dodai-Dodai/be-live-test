@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person Info Fetcher</title>
+    <script>
+        function fetchName() {
+            var id = document.getElementById("personId").value;
+            fetch('http://localhost:8080/get_person_name?id=' + id)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("personName").innerText = 'Name: ' + data;
+                })
+                .catch(error => console.error('Error fetching name:', error));
+        }
+
+        function fetchImage() {
+            var id = document.getElementById("personId").value;
+            fetch('http://localhost:8080/get_person_image?id=' + id)
+                .then(response => response.blob())
+                .then(imageBlob => {
+                    var imageUrl = URL.createObjectURL(imageBlob);
+                    document.getElementById("personImage").src = imageUrl;
+                })
+                .catch(error => console.error('Error fetching image:', error));
+        }
+
+        function addPerson() {
+            var name = document.getElementById("newPersonName").value;
+            var imageFile = document.getElementById("newPersonImage").files[0];
+
+            var formData = new FormData();
+            formData.append("name", name);
+            formData.append("image", imageFile);
+
+            fetch('http://localhost:8080/add_person', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.text())
+                .then(data => {
+                    alert('Person added successfully: ' + data);
+                })
+                .catch(error => console.error('Error adding person:', error));
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Fetch Person Information</h1>
+    <input type="text" id="personId" placeholder="Enter Person ID">
+    <button onclick="fetchName()">Fetch Name</button>
+    <button onclick="fetchImage()">Fetch Image</button>
+    <p id="personName"></p>
+    <img id="personImage" alt="Person Image" style="max-width: 300px;">
+
+    <h2>Add New Person</h2>
+    <input type="text" id="newPersonName" placeholder="Enter Person Name">
+    <input type="file" id="newPersonImage">
+    <button onclick="addPerson()">Add Person</button>
+</body>
+
+</html>
