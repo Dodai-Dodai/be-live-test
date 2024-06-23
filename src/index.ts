@@ -12,12 +12,8 @@ interface User {
 const users: User[] = [];
 
 
-app.get('/', (c) => 
-    c.text('Hello, World!')
-);
-
 // userIDを取得してある程度人数が増えたら
-api.post('/json', async (c) => {
+api.post('/adduser', async (c) => {
     const param = await c.req.json<{ userid: string }>();
     const userid = {
         userid: param.userid,
@@ -25,8 +21,7 @@ api.post('/json', async (c) => {
     if (users.find((user) => user.userid === userid.userid) === undefined) {
         users.push(userid);
     }
-    console.log(users);
-    return c.json(users, 201);
+    return c.json(201);
 });
 
 // api/jsonにアクセスするとusersの中身が返ってくる
