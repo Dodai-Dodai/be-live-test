@@ -1,7 +1,17 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 
 const app = new Hono();
 const api = new Hono();
+
+app.use('*', cors({
+    origin: '15.168.12.232',
+    allowHeaders: ['Content-Type'],
+    allowMethods: ['GET', 'POST'],
+    maxAge: 86400,
+    credentials: true,
+}));
+
 
 // userの構造体を定義
 interface User {
