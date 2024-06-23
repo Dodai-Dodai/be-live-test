@@ -28,6 +28,14 @@ api.post('/adduser', async (c) => {
     return c.json(201);
 });
 
+// usersの中身が5人以上になったらランダムに一人のuserを返す
+api.get('/randomuser', async (c) => {
+    if (users.length >= 5) {
+        return c.json(randomUser(users));
+    }
+    return c.json(404);
+});
+
 // api/jsonにアクセスするとusersの中身が返ってくる
 app.route('/api', api);
 
