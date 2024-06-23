@@ -1,7 +1,17 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 
 const app = new Hono();
 const api = new Hono();
+
+app.use('*', cors({
+    origin: '15.168.12.232',
+    allowHeaders: ['Content-Type'],
+    allowMethods: ['GET', 'POST'],
+    maxAge: 86400,
+    credentials: true,
+}));
+
 
 // userの構造体を定義
 interface User {
@@ -11,13 +21,13 @@ interface User {
 // userの配列を定義
 const users: User[] = [];
 
-
-app.get('/', (c) => 
-    c.text('Hello, World!')
-);
+// usersを引数としてランダムに一つのuserを返す関数
+const randomUser = (users: User[]): User => {
+    return users[Math.floor(Math.random() * users.length)];
+};
 
 // userIDを取得してある程度人数が増えたら
-api.post('/json', async (c) => {
+api.post('/adduser', async (c) => {
     const param = await c.req.json<{ userid: string }>();
     const userid = {
         userid: param.userid,
@@ -25,8 +35,15 @@ api.post('/json', async (c) => {
     if (users.find((user) => user.userid === userid.userid) === undefined) {
         users.push(userid);
     }
-    console.log(users);
-    return c.json(users, 201);
+    return c.json(201);
+});
+
+// usersの中身が5人以上になったらランダムに一人のuserを返す
+api.get('/randomuser', async (c) => {
+    if (users.length >= 5) {
+        return c.json(randomUser(users));
+    }
+    return c.json(404);
 });
 
 // api/jsonにアクセスするとusersの中身が返ってくる

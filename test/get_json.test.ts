@@ -7,7 +7,7 @@ test("POST api/json", async () => {
     const users: { userid: string }[] = [];
     
     const api = new Hono();
-    api.post('/json', async (c) => {
+    api.post('/adduser', async (c) => {
         const param = await c.req.json<{ userid: string }>();
         const userid = {
             userid: param.userid,
@@ -20,7 +20,7 @@ test("POST api/json", async () => {
     app.route('/api', api);
 
     const fetch = app.fetch;
-    const res = await fetch(new Request('http://localhost:3000/api/json', {
+    const res = await fetch(new Request('http://localhost:3000/api/adduser', {
         method: 'POST',
         body: JSON.stringify({ userid: 'test' }),
     }));
@@ -28,7 +28,7 @@ test("POST api/json", async () => {
     expect(await res.json()).toEqual([{ userid: 'test' }]);
     
     // 同じuseridを追加してもusersには追加されない
-    const res2 = await fetch(new Request('http://localhost:3000/api/json', {
+    const res2 = await fetch(new Request('http://localhost:3000/api/adduser', {
         method: 'POST',
         body: JSON.stringify({ userid: 'test' }),
     }));
