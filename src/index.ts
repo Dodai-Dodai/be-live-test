@@ -5,7 +5,7 @@ const app = new Hono();
 const api = new Hono();
 
 app.use('*', cors({
-    origin: '15.168.12.232',
+    origin: '15.168.173.52',
     allowHeaders: ['Content-Type'],
     allowMethods: ['GET', 'POST'],
     maxAge: 86400,
