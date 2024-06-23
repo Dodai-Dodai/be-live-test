@@ -4,15 +4,6 @@ import { cors } from 'hono/cors';
 const app = new Hono();
 const api = new Hono();
 
-app.use('*', cors({
-    origin: '15.168.173.52',
-    allowHeaders: ['Content-Type'],
-    allowMethods: ['GET', 'POST'],
-    maxAge: 86400,
-    credentials: true,
-}));
-
-
 // userの構造体を定義
 interface User {
     userid: string;
@@ -20,6 +11,8 @@ interface User {
 
 // userの配列を定義
 const users: User[] = [];
+
+app.use('*', cors());
 
 // usersを引数としてランダムに一つのuserを返す関数
 const randomUser = (users: User[]): User => {
@@ -32,6 +25,7 @@ api.post('/adduser', async (c) => {
     const userid = {
         userid: param.userid,
     };
+    console.log(userid);
     if (users.find((user) => user.userid === userid.userid) === undefined) {
         users.push(userid);
     }
@@ -50,6 +44,6 @@ api.get('/randomuser', async (c) => {
 app.route('/api', api);
 
 export default { 
-    port: 3000, 
+    port: 8080, 
     fetch: app.fetch, 
 } 
