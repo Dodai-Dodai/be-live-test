@@ -43,7 +43,8 @@ api.get('/randomuser', async (c) => {
 // api/jsonにアクセスするとusersの中身が返ってくる
 app.route('/api', api);
 
-export default { 
+export default {
+    hostname: "0.0.0.0",
     port: 8080, 
     fetch: app.fetch, 
 } 
