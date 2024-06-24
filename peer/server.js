@@ -3,9 +3,9 @@ const https = require('https');
 const express = require('express');
 const { PeerServer } = require('peer');
 
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/be-live.ytakag.com/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/be-live.ytakag.com/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/be-live.ytakag.com/chain.pem', 'utf8');
+const privateKey = fs.readFileSync('./privkey.pem', 'utf8');
+const certificate = fs.readFileSync('./cert.pem', 'utf8');
+const ca = fs.readFileSync('./chain.pem', 'utf8');
 
 const app = express();
 
