@@ -1,5 +1,20 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { serve } from '@hono/node-server'
+import * as dotenv from 'dotenv';
+import webpush from 'web-push';
+
+dotenv.config();
+
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+const MAILTO = process.env.MAIL || '';
+
+webpush.setVapidDetails(
+    MAILTO,
+    VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY
+);
 
 const app = new Hono();
 const api = new Hono();
@@ -38,6 +53,13 @@ api.get('/randomuser', async (c) => {
         return c.json(randomUser(users));
     }
     return c.json(404);
+});
+
+api.post('/sendnotification', async (c) => {
+    const { subscription, payload } = await c.req.json();
+    webpush.sendNotification(subscription, JSON.stringify(payload))
+        .then(() => c.json({ message: 'Notification sent successfully' }))
+        .catch(error => c.json({ message: 'Error sending notification', error }));
 });
 
 // api/jsonにアクセスするとusersの中身が返ってくる
