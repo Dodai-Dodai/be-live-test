@@ -30,7 +30,10 @@ api.post('/adduser', async (c) => {
     console.log(userid);
     if (users.find((user) => user.userid === userid.userid) === undefined) {
         users.push(userid);
+        
+        // ユーザーが追加された場合、キャッシュをリセット
         cachedUser = null;
+        requestCount = 0;
     }
     return c.json(201);
 });
@@ -42,9 +45,6 @@ api.get('/randomuser', async (c) => {
     if (users.length < 5) {
         return c.json({ error: 'users are not enough' }, 404);
     }
-
-    // usersの中身を空にする
-    users.splice(0, users.length);
 
     if (!cachedUser || requestCount >= 5) {
         cachedUser = randomUser(users);
@@ -67,7 +67,12 @@ api.post('/deleteuser', async (c) => {
     const index = users.findIndex((user) => user.userid === userid.userid);
     if (index !== -1) {
         users.splice(index, 1);
-        cachedUser = null;
+
+        // キャッシュされたユーザが削除された場合、キャッシュをリセット
+        if (cachedUser?.userid === userid.userid) {
+            cachedUser = null;
+            requestCount = 0;
+        }
     }
     return c.json(201);
 });
