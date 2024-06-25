@@ -15,8 +15,10 @@
   "dependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
     "@web/test-runner": "^0.18.2",
+    "dotenv": "^16.4.5",
     "hono": "^4.4.7",
     "jest": "^29.7.0",
-    "supertest": "^7.0.0"
+    "supertest": "^7.0.0",
+    "web-push": "^3.6.7"
   }
 }
