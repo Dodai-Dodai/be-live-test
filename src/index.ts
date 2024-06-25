@@ -68,6 +68,7 @@ app.route('/api', api);
 api.post('/subscribe', async (c) => {
     const subscription = await c.req.json();
     subscriptions.push(subscription);
+    console.log(subscriptions);
     return c.json(201);
 }
 );
