@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { useRef } from 'hono/jsx';
 
 const app = new Hono();
 const api = new Hono();
@@ -32,12 +33,18 @@ api.post('/adduser', async (c) => {
     return c.json(201);
 });
 
-// usersの中身が5人以上になったらランダムに一人のuserを返す
+let cachedUser = null;
+let requestCount = 0;
+
 api.get('/randomuser', async (c) => {
     if (users.length >= 5) {
-        return c.json(randomUser(users));
+        cachedUser = randomUser(users);
+        requestCount = 0;
+    } else {
+        return c.status(404);
     }
-    return c.json(404);
+    requestCount++;
+    return c.json(cachedUser);
 });
 
 // relogin対策
