@@ -33,15 +33,17 @@ api.post('/adduser', async (c) => {
     return c.json(201);
 });
 
-let cachedUser = null;
+let cachedUser: User | null = null;
 let requestCount = 0;
 
 api.get('/randomuser', async (c) => {
-    if (users.length >= 5) {
+    if (users.length < 5) {
+        return c.status(404);
+    }
+
+    if (!cachedUser || requestCount >= 5) {
         cachedUser = randomUser(users);
         requestCount = 0;
-    } else {
-        return c.status(404);
     }
     requestCount++;
     return c.json(cachedUser);
