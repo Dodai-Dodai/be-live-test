@@ -40,6 +40,23 @@ api.get('/randomuser', async (c) => {
     return c.json(404);
 });
 
+// relogin対策
+// clientからのuserの情報を受け取ってusersから削除する
+api.post('/deleteuser', async (c) => {
+    const param = await c.req.json<{ userid: string }>();
+    const userid = {
+        userid: param.userid,
+    };
+    console.log(userid);
+    
+    // usersの中からuseridが一致するものを削除
+    const index = users.findIndex((user) => user.userid === userid.userid);
+    if (index !== -1) {
+        users.splice(index, 1);
+    }
+    return c.json(201);
+});
+
 // api/jsonにアクセスするとusersの中身が返ってくる
 app.route('/api', api);
 
