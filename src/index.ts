@@ -41,6 +41,9 @@ api.get('/randomuser', async (c) => {
         return c.json({ error: 'users are not enough' }, 404);
     }
 
+    // usersの中身を空にする
+    users.splice(0, users.length);
+
     if (!cachedUser || requestCount >= 5) {
         cachedUser = randomUser(users);
         requestCount = 0;
