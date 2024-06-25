@@ -38,7 +38,7 @@ let requestCount = 0;
 
 api.get('/randomuser', async (c) => {
     if (users.length < 5) {
-        return c.status(404);
+        return c.json({ error: 'users are not enough' }, 404);
     }
 
     if (!cachedUser || requestCount >= 5) {
