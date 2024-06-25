@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { cache } from 'hono/cache';
 import { cors } from 'hono/cors';
 import { useRef } from 'hono/jsx';
 
@@ -29,6 +30,7 @@ api.post('/adduser', async (c) => {
     console.log(userid);
     if (users.find((user) => user.userid === userid.userid) === undefined) {
         users.push(userid);
+        cachedUser = null;
     }
     return c.json(201);
 });
@@ -65,6 +67,7 @@ api.post('/deleteuser', async (c) => {
     const index = users.findIndex((user) => user.userid === userid.userid);
     if (index !== -1) {
         users.splice(index, 1);
+        cachedUser = null;
     }
     return c.json(201);
 });
