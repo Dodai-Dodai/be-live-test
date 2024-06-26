@@ -65,7 +65,7 @@ const usernames2: User[] = [];
 let rerult: User | undefined;
 
 api.post('/randomuser', async (c) => {
-    const param = await c.req.json<{ username: string }>();
+    const param = await c.req.json<{ userid: string }>();
     console.log(rerult);
     //username1とusername2の中身を表示
     for(let i = 0; i < usernames.length; i++){
@@ -75,16 +75,16 @@ api.post('/randomuser', async (c) => {
         console.log(usernames2[i]);
     }
     // 配列2に名前がない場合
-    if (usernames2.find((user) => user.userid === param.username) === undefined) {
+    if (usernames2.find((user) => user.userid === param.userid) === undefined) {
         // 配列1に名前がない場合
-        if (usernames.find((user) => user.userid === param.username) === undefined) {
-            usernames.push({ userid: param.username });
+        if (usernames.find((user) => user.userid === param.userid) === undefined) {
+            usernames.push({ userid: param.userid });
 
         }
         return c.json(404);
     } /*配列2に名前がある場合*/ else {
         //配列2から名前を削除
-        usernames2.splice(usernames2.findIndex((user) => user.userid === param.username), 1);
+        usernames2.splice(usernames2.findIndex((user) => user.userid === param.userid), 1);
         //抽選結果を返す
         return c.json(rerult);
     }
