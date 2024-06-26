@@ -84,16 +84,22 @@ api.post('/randomuser', async (c) => {
 
 // 5秒毎に配列1は初期化
 setInterval(() => {
-    usernames.length = 0;
-    // 配列1の中身が5つ以上あれば配列2にコピー
-    if (usernames.length >= 5) {
+    /*配列1の名前が5つ以上ある時*/
+    if(usernames.length >= 5){
         // resultを初期化
         rerult = undefined;
-        usernames2.push(...usernames);
-    }
-    // 配列2の中身が5つ以上あれば抽選
-    if (usernames2.length >= 5) {
+        // 配列1から配列2にコピー
+        for(let i = 0; i < usernames.length; i++){
+            usernames2.push(usernames[i]);
+        }
+        // 配列2の中からランダムに一つの名前を抽選
         rerult = randomUser(usernames2);
+    } else {
+        // なにもしない
+    }
+    // 配列1を初期化
+    for(let i = usernames.length; i > 0; i--){
+        usernames.pop();
     }
 }, 5000);
 
