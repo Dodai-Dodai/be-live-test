@@ -77,12 +77,12 @@ let peerid2: string | undefined;
 */
 api.post('/randomuser', async (c) => {
     const param = await c.req.json<{ userid: string }>();
-    console.log("result:"+rerult);
+    console.log("result:" + rerult);
     //username1とusername2の中身を表示
-    for(let i = 0; i < usernames.length; i++){
+    for (let i = 0; i < usernames.length; i++) {
         console.log(usernames[i]);
     }
-    for(let i = 0; i < usernames2.length; i++){
+    for (let i = 0; i < usernames2.length; i++) {
         console.log(usernames2[i]);
     }
     // 配列2に名前がない場合
@@ -105,12 +105,12 @@ api.post('/randomuser', async (c) => {
 
 // 5秒毎に配列1は初期化
 setInterval(() => {
-    console.log("resu;t"+rerult);
+    console.log("resu;t" + rerult);
     //username1とusername2の中身を表示
-    for(let i = 0; i < usernames.length; i++){
+    for (let i = 0; i < usernames.length; i++) {
         console.log(usernames[i]);
     }
-    for(let i = 0; i < usernames2.length; i++){
+    for (let i = 0; i < usernames2.length; i++) {
         console.log(usernames2[i]);
     }
     /*配列1の名前が5つ以上ある時*/
@@ -123,10 +123,10 @@ setInterval(() => {
         }
         // 配列2の中からランダムに一つの名前を抽選
         rerult = randomUser(usernames2);
-        if (peerid1 === undefined) {
-            peerid1 = Math.random().toString(36).slice(-8);
-        }
-        
+
+        peerid1 = Math.random().toString(36).slice(-8);
+
+
     } else {
         // なにもしない
     }
