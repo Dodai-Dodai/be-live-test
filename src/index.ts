@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import webpush from 'web-push';
 import dotenv from 'dotenv';
+import { resolve } from 'bun';
 
 
 
@@ -58,35 +59,41 @@ api.get('/randomuser', async (c) => {
 5秒毎に配列1は初期化
 初期化前に、名前が5つ以上あれば配列2にコピー */
 
-interface UserName {
-    username: string;
-}
-
-const usernames: UserName[] = [];
-const usernames2: UserName[] = [];
+const usernames: User[] = [];
+const usernames2: User[] = [];
+// 抽選結果を格納する変数(初期値はundefined)
+let rerult: User | undefined;
 
 api.post('/randomuser', async (c) => {
     const param = await c.req.json<{ username: string }>();
-    // 配列2を参照
-    if (usernames2.find((username) => username.username === param.username) === undefined) {
-        // 名前がなければ配列1に格納
-        usernames.push(param);
-        return c.json(404);
-    } else {
-        // 名前があれば
-        //postしてきた名前を配列2から削除
-        usernames2.splice(usernames2.findIndex((username) => username.username === param.username), 1);
-        //usernameを返して
-        return c.json(param);
+    // 配列2に名前がない場合
+    if (usernames2.find((user) => user.userid === param.username) === undefined) {
+        // 配列1に名前がない場合
+        if (usernames.find((user) => user.userid === param.username) === undefined) {
+            usernames.push({ userid: param.username });
+            
+        }   
+        return c.json(404);     
+    } /*配列2に名前がある場合*/ else {
+        //配列2から名前を削除
+        usernames2.splice(usernames2.findIndex((user) => user.userid === param.username), 1);
+        //抽選結果を返す
+        return c.json(rerult);
     }
 });
 
 // 5秒毎に配列1は初期化
 setInterval(() => {
     usernames.length = 0;
-    // 初期化前に、名前が5つ以上あれば配列2にコピー
+    // 配列1の中身が5つ以上あれば配列2にコピー
     if (usernames.length >= 5) {
+        // resultを初期化
+        rerult = undefined;
         usernames2.push(...usernames);
+    }
+    // 配列2の中身が5つ以上あれば抽選
+    if (usernames2.length >= 5) {
+        rerult = randomUser(usernames2);
     }
 }, 5000);
 
