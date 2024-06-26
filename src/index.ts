@@ -66,14 +66,17 @@ let rerult: User | undefined;
 
 api.post('/randomuser', async (c) => {
     const param = await c.req.json<{ username: string }>();
+    console.log(rerult);
+    console.log("username1" + usernames);
+    console.log("username2" + usernames2);
     // 配列2に名前がない場合
     if (usernames2.find((user) => user.userid === param.username) === undefined) {
         // 配列1に名前がない場合
         if (usernames.find((user) => user.userid === param.username) === undefined) {
             usernames.push({ userid: param.username });
-            
-        }   
-        return c.json(404);     
+
+        }
+        return c.json(404);
     } /*配列2に名前がある場合*/ else {
         //配列2から名前を削除
         usernames2.splice(usernames2.findIndex((user) => user.userid === param.username), 1);
@@ -85,20 +88,24 @@ api.post('/randomuser', async (c) => {
 // 5秒毎に配列1は初期化
 setInterval(() => {
     /*配列1の名前が5つ以上ある時*/
-    if(usernames.length >= 5){
+    if (usernames.length >= 5) {
         // resultを初期化
         rerult = undefined;
         // 配列1から配列2にコピー
-        for(let i = 0; i < usernames.length; i++){
+        for (let i = 0; i < usernames.length; i++) {
             usernames2.push(usernames[i]);
         }
         // 配列2の中からランダムに一つの名前を抽選
         rerult = randomUser(usernames2);
+
+        console.log(rerult);
+        console.log("username1" + usernames);
+        console.log("username2" + usernames2);
     } else {
         // なにもしない
     }
     // 配列1を初期化
-    for(let i = usernames.length; i > 0; i--){
+    for (let i = usernames.length; i > 0; i--) {
         usernames.pop();
     }
 }, 5000);
