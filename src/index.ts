@@ -8,20 +8,6 @@ import dotenv from 'dotenv';
 const app = new Hono();
 const api = new Hono();
 
-// VAPIDの設定
-dotenv.config();
-
-const vapidKeys = {
-    publickey: process.env.VAPID_PUBLIC_KEY || 'BLg1jEi2V86J003618kS4qf-uBqQpNLI0KALUAlJ6oL-GIJA8aDHPlQzT7yOqNi922n-jXJIvyTtOAOWiGfIeIE',
-    privatekey: process.env.VAPID_PRIVATE_KEY 
-};
-
-webpush.setVapidDetails(
-    'mailto:example@example.com',
-    vapidKeys.publickey,
-    vapidKeys.privatekey
-);
-
 // サブスクリプション情報を格納する配列
 let subscriptions: any[] = [];
 
@@ -41,6 +27,7 @@ const randomUser = (users: User[]): User => {
 };
 
 // userIDを取得してある程度人数が増えたら
+/*
 api.post('/adduser', async (c) => {
     const param = await c.req.json<{ userid: string }>();
     const userid = {
@@ -60,6 +47,7 @@ api.get('/randomuser', async (c) => {
     }
     return c.json(404);
 });
+*/
 
 /*サーバーサイドは　usernameを格納する配列1と配列2を用意
 
