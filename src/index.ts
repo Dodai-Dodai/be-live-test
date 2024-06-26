@@ -1,9 +1,29 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { useRef } from 'hono/jsx';
+import webpush from 'web-push';
+import dotenv from 'dotenv';
+
+
 
 const app = new Hono();
 const api = new Hono();
+
+// VAPIDの設定
+dotenv.config();
+
+const vapidKeys = {
+    publickey: process.env.VAPID_PUBLIC_KEY || 'BLg1jEi2V86J003618kS4qf-uBqQpNLI0KALUAlJ6oL-GIJA8aDHPlQzT7yOqNi922n-jXJIvyTtOAOWiGfIeIE',
+    privatekey: process.env.VAPID_PRIVATE_KEY 
+};
+
+webpush.setVapidDetails(
+    'mailto:example@example.com',
+    vapidKeys.publickey,
+    vapidKeys.privatekey
+);
+
+// サブスクリプション情報を格納する配列
+let subscriptions: any[] = [];
 
 // userの構造体を定義
 interface User {
@@ -33,47 +53,80 @@ api.post('/adduser', async (c) => {
     return c.json(201);
 });
 
-let cachedUser: User | null = null;
-let requestCount = 0;
-
+// usersの中身が5人以上になったらランダムに一人のuserを返す
 api.get('/randomuser', async (c) => {
-    if (users.length < 5) {
-        return c.json({ error: 'users are not enough' }, 404);
+    if (users.length >= 5) {
+        return c.json(randomUser(users));
     }
-
-    // usersの中身を空にする
-    users.splice(0, users.length);
-
-    if (!cachedUser || requestCount >= 5) {
-        cachedUser = randomUser(users);
-        requestCount = 0;
-    }
-    requestCount++;
-    return c.json(cachedUser);
+    return c.json(404);
 });
 
-// relogin対策
-// clientからのuserの情報を受け取ってusersから削除する
-api.post('/deleteuser', async (c) => {
-    const param = await c.req.json<{ userid: string }>();
-    const userid = {
-        userid: param.userid,
-    };
-    console.log(userid);
-    
-    // usersの中からuseridが一致するものを削除
-    const index = users.findIndex((user) => user.userid === userid.userid);
-    if (index !== -1) {
-        users.splice(index, 1);
+/*サーバーサイドは　usernameを格納する配列1と配列2を用意
+
+クライアントからusernameが来たら、配列2を参照
+→名前がなければ配列1に格納、404？を返す
+→名前があればusernameを返してpostしてきた名前を配列2から削除
+
+5秒毎に配列1は初期化
+初期化前に、名前が5つ以上あれば配列2にコピー */
+
+interface UserName {
+    username: string;
+}
+
+const usernames: UserName[] = [];
+const usernames2: UserName[] = [];
+
+api.post('/randomuser', async (c) => {
+    const param = await c.req.json<{ username: string }>();
+    // 配列2を参照
+    if (usernames2.find((username) => username.username === param.username) === undefined) {
+        // 名前がなければ配列1に格納
+        usernames.push(param);
+        return c.json(404);
+    } else {
+        // 名前があれば
+        //postしてきた名前を配列2から削除
+        usernames2.splice(usernames2.findIndex((username) => username.username === param.username), 1);
+        //usernameを返して
+        return c.json(param);
     }
-    return c.json(201);
 });
+
+// 5秒毎に配列1は初期化
+setInterval(() => {
+    usernames.length = 0;
+    // 初期化前に、名前が5つ以上あれば配列2にコピー
+    if (usernames.length >= 5) {
+        usernames2.push(...usernames);
+    }
+}, 5000);
+
 
 // api/jsonにアクセスするとusersの中身が返ってくる
 app.route('/api', api);
 
+// クライアントからサブスクリプション情報を受け取る
+api.post('/subscribe', async (c) => {
+    const subscription = await c.req.json();
+    subscriptions.push(subscription);
+    console.log(subscriptions);
+    return c.json(201);
+}
+);
+
+// サブスクリプション情報を元にプッシュ通知を送る
+api.post('sendNotification', async (c) => {
+    const { title, message } = await c.req.json();
+    const payload = JSON.stringify({ title, message });
+    subscriptions.forEach((subscription) => {
+        webpush.sendNotification(subscription, payload).catch((err: Error) => console.error(err));
+    });
+    return c.json(201);
+}
+);
 export default {
     hostname: "0.0.0.0",
-    port: 8080, 
-    fetch: app.fetch, 
+    port: 8080,
+    fetch: app.fetch,
 } 
