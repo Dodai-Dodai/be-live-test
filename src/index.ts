@@ -67,8 +67,13 @@ let rerult: User | undefined;
 api.post('/randomuser', async (c) => {
     const param = await c.req.json<{ username: string }>();
     console.log(rerult);
-    console.log("username1" + usernames);
-    console.log("username2" + usernames2);
+    //username1とusername2の中身を表示
+    for(let i = 0; i < usernames.length; i++){
+        console.log(usernames[i]);
+    }
+    for(let i = 0; i < usernames2.length; i++){
+        console.log(usernames2[i]);
+    }
     // 配列2に名前がない場合
     if (usernames2.find((user) => user.userid === param.username) === undefined) {
         // 配列1に名前がない場合
@@ -87,6 +92,14 @@ api.post('/randomuser', async (c) => {
 
 // 5秒毎に配列1は初期化
 setInterval(() => {
+    console.log(rerult);
+    //username1とusername2の中身を表示
+    for(let i = 0; i < usernames.length; i++){
+        console.log(usernames[i]);
+    }
+    for(let i = 0; i < usernames2.length; i++){
+        console.log(usernames2[i]);
+    }
     /*配列1の名前が5つ以上ある時*/
     if (usernames.length >= 5) {
         // resultを初期化
@@ -98,9 +111,7 @@ setInterval(() => {
         // 配列2の中からランダムに一つの名前を抽選
         rerult = randomUser(usernames2);
 
-        console.log(rerult);
-        console.log("username1" + usernames);
-        console.log("username2" + usernames2);
+        
     } else {
         // なにもしない
     }
