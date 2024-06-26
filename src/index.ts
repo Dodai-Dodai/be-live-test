@@ -66,7 +66,7 @@ let rerult: User | undefined;
 
 api.post('/randomuser', async (c) => {
     const param = await c.req.json<{ userid: string }>();
-    console.log(rerult);
+    console.log("result:"+rerult);
     //username1とusername2の中身を表示
     for(let i = 0; i < usernames.length; i++){
         console.log(usernames[i]);
@@ -92,7 +92,7 @@ api.post('/randomuser', async (c) => {
 
 // 5秒毎に配列1は初期化
 setInterval(() => {
-    console.log(rerult);
+    console.log("resu;t"+rerult);
     //username1とusername2の中身を表示
     for(let i = 0; i < usernames.length; i++){
         console.log(usernames[i]);
