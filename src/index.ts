@@ -64,40 +64,61 @@ const usernames2: User[] = [];
 // 抽選結果を格納する変数(初期値はundefined)
 let rerult: User | undefined;
 
+// peeridを格納する変数
+let peerid1: string | undefined;
+let peerid2: string | undefined;
+
+// ランダムなユーザーを返すとともに、peeridとしてランダムな文字列を返す
+/*
+{
+    "userid": "xxxxx",
+    "peerid": "xxxxx"
+}
+    みたいに返す
+*/
 api.post('/randomuser', async (c) => {
     const param = await c.req.json<{ userid: string }>();
-    console.log("result:"+rerult);
+    console.log("result:" + rerult);
     //username1とusername2の中身を表示
-    for(let i = 0; i < usernames.length; i++){
+    for (let i = 0; i < usernames.length; i++) {
         console.log(usernames[i]);
     }
-    for(let i = 0; i < usernames2.length; i++){
+    for (let i = 0; i < usernames2.length; i++) {
+
         console.log(usernames2[i]);
     }
     // 配列2に名前がない場合
     if (usernames2.find((user) => user.userid === param.userid) === undefined) {
         // 配列1に名前がない場合
         if (usernames.find((user) => user.userid === param.userid) === undefined) {
-            usernames.push({ userid: param.userid });
+
+            usernames.push({ userid: param.userid });//配列1に名前を格納
 
         }
         return c.json(404);
     } /*配列2に名前がある場合*/ else {
         //配列2から名前を削除
         usernames2.splice(usernames2.findIndex((user) => user.userid === param.userid), 1);
-        //抽選結果を返す
-        return c.json(rerult);
+
+        //抽選結果とpeeridを返す
+        return c.json({
+            userid: rerult?.userid,
+            peerid: peerid1,
+        });
+
     }
 });
 
 // 5秒毎に配列1は初期化
 setInterval(() => {
-    console.log("resu;t"+rerult);
+
+    console.log("resu;t" + rerult);
     //username1とusername2の中身を表示
-    for(let i = 0; i < usernames.length; i++){
+    for (let i = 0; i < usernames.length; i++) {
         console.log(usernames[i]);
     }
-    for(let i = 0; i < usernames2.length; i++){
+    for (let i = 0; i < usernames2.length; i++) {
+
         console.log(usernames2[i]);
     }
     /*配列1の名前が5つ以上ある時*/
@@ -111,7 +132,9 @@ setInterval(() => {
         // 配列2の中からランダムに一つの名前を抽選
         rerult = randomUser(usernames2);
 
-        
+
+        peerid1 = Math.random().toString(36).slice(-8);
+
     } else {
         // なにもしない
     }
@@ -148,4 +171,6 @@ export default {
     hostname: "0.0.0.0",
     port: 8080,
     fetch: app.fetch,
+
 } 
+
