@@ -99,7 +99,9 @@ api.post('/randomuser', async (c) => {
     } /*配列2に名前がある場合*/ else {
         //配列2から名前を削除
         usernames2.splice(usernames2.findIndex((user) => user.userid === param.userid), 1);
-
+        // 返す予定のユーザを表示
+        console.log("return:" + JSON.stringify(rerult));
+        console.log("return:" + peerid1);
         //抽選結果とpeeridを返す
         return c.json({
             userid: rerult?.userid,
@@ -112,7 +114,7 @@ api.post('/randomuser', async (c) => {
 // 5秒毎に配列1は初期化
 setInterval(() => {
 
-    console.log("resu;t" + rerult);
+    console.log("result: " + JSON.stringify(rerult));
     //username1とusername2の中身を表示
     for (let i = 0; i < usernames.length; i++) {
         console.log(usernames[i]);
