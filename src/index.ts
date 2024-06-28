@@ -67,6 +67,9 @@ let rerult: User | undefined;
 // peeridを格納する変数
 let peerid1: string | undefined;
 let peerid2: string | undefined;
+// resultの返却回数
+let resultCounter: number = 0;
+const RESULT_LIMIT = 5;
 
 // ランダムなユーザーを返すとともに、peeridとしてランダムな文字列を返す
 /*
@@ -84,30 +87,33 @@ api.post('/randomuser', async (c) => {
         console.log(usernames[i]);
     }
     for (let i = 0; i < usernames2.length; i++) {
-
         console.log(usernames2[i]);
     }
     // 配列2に名前がない場合
     if (usernames2.find((user) => user.userid === param.userid) === undefined) {
         // 配列1に名前がない場合
         if (usernames.find((user) => user.userid === param.userid) === undefined) {
-
             usernames.push({ userid: param.userid });//配列1に名前を格納
-
         }
         return c.json(404);
     } /*配列2に名前がある場合*/ else {
         //配列2から名前を削除
         usernames2.splice(usernames2.findIndex((user) => user.userid === param.userid), 1);
+        resultCounter++;
         // 返す予定のユーザを表示
         console.log("return:" + JSON.stringify(rerult));
         console.log("return:" + peerid1);
         //抽選結果とpeeridを返す
-        return c.json({
+        const response= c.json({
             userid: rerult?.userid,
             peerid: peerid1,
         });
-
+        if (resultCounter >= RESULT_LIMIT) {
+            console.log("result: " + JSON.stringify(rerult) + " is reset");
+            resultCounter = 0;
+            rerult = undefined;
+        }
+        return response;
     }
 });
 
