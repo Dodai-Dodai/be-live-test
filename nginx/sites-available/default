@@ -163,6 +163,30 @@ server {
         	proxy_set_header X-Forwarded-Proto $scheme;
     	}
 
+	location /api/subscribe {
+        	proxy_pass http://localhost:8080/api/subscribe;
+        	proxy_set_header Host $host;
+        	proxy_set_header X-Real-IP $remote_addr;
+        	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        	proxy_set_header X-Forwarded-Proto $scheme;
+    	}
+
+    	location /api/sendNotification {
+        	proxy_pass http://localhost:8080/api/sendNotification;
+        	proxy_set_header Host $host;
+        	proxy_set_header X-Real-IP $remote_addr;
+        	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        	proxy_set_header X-Forwarded-Proto $scheme;
+    	}
+
+	location /api/deleteuser {
+		proxy_pass http://localhost:8080/api/deleteuser;
+		proxy_set_header Host $host;
+        	proxy_set_header X-Real-IP $remote_addr;
+        	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        	proxy_set_header X-Forwarded-Proto $scheme;
+	}
+
 	# pass PHP scripts to FastCGI server
 	#
 	#location ~ \.php$ {
